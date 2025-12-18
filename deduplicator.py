@@ -13,6 +13,7 @@ Author: KernelGhost
 
 import os
 import hashlib
+import time
 
 def file_hasher(file):
     """
@@ -52,7 +53,8 @@ def find_duplicate(directory):
     Returns:
         list: A list of lists, where each inner list contains the paths of identical files.
     """
-    print(f"Scanning {directory}...")
+    print(f"\nScanning {directory}...")
+    time.sleep(1)
     
     # --- PHASE 1: DIRECTORY VALIDATION ---
     # We attempt to list the directory first to catch common path errors
@@ -68,11 +70,14 @@ def find_duplicate(directory):
     except PermissionError:
         print(f"Error: You do not have permission to access '{directory}'.")
         exit() 
+    print("Directory scanned successfully.")
     
     # Dictionary to map { File Size (int) : [List of File Paths] }
     files_by_size = {}
     true_duplicates = []
-    
+
+    print("\nAnalyzing files by sizes...")
+    time.sleep(1)
     # --- PHASE 2: GROUPING BY SIZE (FAST) ---
     # We walk the entire directory tree.
     for root, dirs, files in os.walk(directory):
@@ -97,10 +102,14 @@ def find_duplicate(directory):
             except OSError:
                 # Skip files we cannot access/read stats for
                 continue
+    print("Size analysis complete")
 
     # --- PHASE 3: VERIFYING HASHES (SLOW) ---
     duplicates_found = False
     
+    print("\nProceeding to verifying potential duplicates by hashing...")
+    print("This may take a while depending on the number and size of files...")
+    time.sleep(1)
     # Iterate through our size groups.
     for size, paths in files_by_size.items():
         
@@ -110,7 +119,8 @@ def find_duplicate(directory):
             
             # Mini-dictionary for this specific size group: { MD5 Hash : [List of Paths] }
             files_by_hash = {}
-            
+            print("Hashing files")
+            time.sleep(1)
             for path in paths:
                 file_hash = file_hasher(path)
                 
@@ -120,7 +130,12 @@ def find_duplicate(directory):
                         files_by_hash[file_hash] = [path]
                     else:
                         files_by_hash[file_hash].append(path)
-                        
+            print("Hashing complete")
+
+
+            print("\nChecking for duplicates...")
+            time.sleep(1)
+            print("___________________")           
             # Check the hash groups to identify True Duplicates
             for file_hash, file_list in files_by_hash.items():
                 if len(file_list) > 1:
@@ -132,6 +147,7 @@ def find_duplicate(directory):
                     print(f"[DUPLICATE SET] Hash: {file_hash} (Size: {size} bytes)")
                     for p in file_list:
                         print(f"  -> {p}")
+    print("Duplicate verification complete.")
     
     # --- PHASE 4: REPORTING ---
     if not duplicates_found:
@@ -142,5 +158,5 @@ def find_duplicate(directory):
    
 # Example Usage:
 if __name__ == "__main__":
-    scan_path = input("Enter the file path: ")
+    scan_path = "/home/kernelghost/Downloads/projects/New_beginning/files_and_directory_manipulation"
     print(find_duplicate(scan_path))
