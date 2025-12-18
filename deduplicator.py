@@ -142,5 +142,5 @@ def find_duplicate(directory):
    
 # Example Usage:
 if __name__ == "__main__":
-    scan_path = "/home/kernelghost/Downloads/projects/New_beginning/files_and_directory_manipulation"
+    scan_path = input("Enter the file path: ")
     print(find_duplicate(scan_path))
